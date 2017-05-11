@@ -1,0 +1,14 @@
+# IDE
+.idea/
+
+# java
+*.class
+build/
+record/
+javadoc/    # ignore this temporarily
+
+# Gradle
+.gradle/
+
+# MacOS
+.DS_Store
