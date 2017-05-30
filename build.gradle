@@ -6,17 +6,19 @@
  * user guide available at https://docs.gradle.org/3.4.1/userguide/java_library_plugin.html
  */
 
-apply plugin: 'java'
-apply plugin: 'application'
 
-def myOpenCV = '/usr/local/opt/opencv3/share/OpenCV/java/'
+apply plugin: 'com.android.library'
 
-dependencies {
-    compile fileTree(dir: myOpenCV, include: ['*.jar'])
+android {
+    compileSdkVersion 25
+    buildToolsVersion "25.0.2"
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 25
+    }
 }
 
-mainClassName = "Main"
-
-run {
-    systemProperty "java.library.path", myOpenCV
+dependencies {
+    compile project(':openCVLibrary320')
 }

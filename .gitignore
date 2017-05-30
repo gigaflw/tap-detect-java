@@ -13,3 +13,6 @@ Main.java
 
 # MacOS
 .DS_Store
+
+# Android setting files
+*.iml
