@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-30 14:54:37
+* @Last Modified time: 2017-05-30 15:11:45
 */
 package tapdetect;
 
@@ -30,6 +30,7 @@ public class Util {
     public static double resize(Mat im, int height) {
         /*
            @return: a double indicating the shrink ratio
+             = new height / old height
          */
 
         Size size = im.size();
@@ -48,8 +49,6 @@ public class Util {
         Mat hierarchy = new Mat();
         Imgproc.findContours(im, contours, hierarchy, 1, Imgproc.RETR_LIST);
 
-
-
         // FIXME: stream requires Android sdk >= 24
         // return contours.stream()
         //         .filter(cnt -> Imgproc.contourArea(cnt) > area)
@@ -58,6 +57,14 @@ public class Util {
         List<MatOfPoint> ret = new ArrayList<>();
         for (MatOfPoint cnt: contours) {
             if (Imgproc.contourArea(cnt) > area) { ret.add(cnt); }
+        }
+        return ret;
+    }
+
+    public static List<Point> contoursToPoints(List<MatOfPoint> contours) {
+        List<Point> ret = new ArrayList<>();
+        for (MatOfPoint cnt: contours) {
+            ret.addAll(cnt.toList());
         }
         return ret;
     }
