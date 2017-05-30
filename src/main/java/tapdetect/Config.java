@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 14:37:27
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-10 22:03:37
+* @Last Modified time: 2017-05-30 21:12:18
 */
 
 package tapdetect;
@@ -15,6 +15,7 @@ public class Config {
 
     public static int IM_HEIGHT = 500;
     public static int TAP_THRESHOLD_ROW = 320;
+    public static int HAND_AREA_MIN = 1200;
     public static int FINGER_TIP_STEP = 10;
     public static int FINGER_TIP_WIDTH = 30;
 }

@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-30 16:16:12
+* @Last Modified time: 2017-05-30 21:08:38
 */
 
 package tapdetect;
@@ -26,7 +26,7 @@ public class FingerDetector {
     public List<Point> getFingers(Mat im, Mat hand) {
         assert im.size().height == Config.IM_HEIGHT;
 
-        List<MatOfPoint> contours = Util.largeContours(hand, 100);
+        List<MatOfPoint> contours = Util.largeContours(hand, 0);
         if (contours.isEmpty()) {
             return new ArrayList<>();
         }
@@ -79,7 +79,7 @@ public class FingerDetector {
             finger_tips_ind.add(i);
         }
 
-        List<Integer> finger_tips_ind_separate = this.mergeNeighbors(finger_tips_ind, 10);
+        List<Integer> finger_tips_ind_separate = this.mergeNeighbors(finger_tips_ind, Config.FINGER_TIP_WIDTH);
 
         // FIXME: can't use stream until android sdk 24
         // return finger_tips_ind_separate.stream().map(contour_pt::get).collect(Collectors.toList());

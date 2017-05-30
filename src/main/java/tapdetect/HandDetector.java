@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:07
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-11 11:00:52
+* @Last Modified time: 2017-05-30 21:06:58
 */
 package tapdetect;
 
@@ -29,8 +29,7 @@ public class HandDetector {
         ImgLogger.debug("04_small_range.jpg", handSm);
         ImgLogger.debug("05_large_range.jpg", handLg);
 
-        // contoursSm = Util.largeContours(handSm, area=1200)
-        List<MatOfPoint> contoursSm = Util.largeContours(handSm, 1200);
+        List<MatOfPoint> contoursSm = Util.largeContours(handSm, Config.HAND_AREA_MIN);
 
         Point[] seeds = new Point[contoursSm.size()];
 
@@ -42,7 +41,7 @@ public class HandDetector {
         }
         // [(col1, row1), ...] center of each contour
 
-        List<MatOfPoint> contours_lg = Util.largeContours(handLg, 1200);
+        List<MatOfPoint> contours_lg = Util.largeContours(handLg, Config.HAND_AREA_MIN);
 
         Mat hand = Util.fillContours(handLg.size(), contours_lg, seeds);
 
