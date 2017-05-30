@@ -6,7 +6,7 @@
 build/
 record/
 javadoc/    # ignore this temporarily
-Main.java   # entry file, keep changing
+Main.java
 
 # Gradle
 .gradle/
