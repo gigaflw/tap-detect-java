@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-30 14:51:39
+* @Last Modified time: 2017-05-30 16:16:12
 */
 
 package tapdetect;
@@ -42,8 +42,7 @@ public class FingerDetector {
         Mat hand_with_finger_tips = Util.drawPoints(hand_with_contour, finger_tips, new Scalar(255, 0, 0));
 
         ImgLogger.info("12_finger_tips.jpg", hand_with_finger_tips);
-        // so that the caller can have the `im` with contour and fingertip painted
-        hand_with_finger_tips.assignTo(im);
+        hand_with_finger_tips.assignTo(im);  // so that the caller can have the `im` with contour and fingertip painted
 
         return finger_tips;
     }

@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:16:34
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-11 11:01:03
+* @Last Modified time: 2017-05-30 16:18:48
 */
 package tapdetect;
 
@@ -68,7 +68,7 @@ public class ImgLogger {
     }
 
     public static void show(String filename, Mat im) {
-        log(filename, im, LOG_LEVEL_SILENT - 1);
+        log(filename, im, LOG_LEVEL_SILENT - 1);  // shows unless level is silent
     }
 
     public static void setBaseDir(String baseDir) {
