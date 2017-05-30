@@ -2,7 +2,7 @@
 * @Author: gigaflower
 * @Date:   2017-05-11 10:31:50
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-11 10:59:27
+* @Last Modified time: 2017-05-30 14:44:06
 */
 
 import java.util.List;
@@ -16,6 +16,7 @@ import tapdetect.FingerDetector;
 import tapdetect.TapDetector;
 import tapdetect.ImgLogger;
 import tapdetect.Util;
+import tapdetect.facade.Tap;
 
 public class Main {
     static {
@@ -27,9 +28,13 @@ public class Main {
         ImgLogger.setBaseDir("record");
 
 //        ImgLoggerTest();
-        HandDetectorTest("../samples/00.jpg");
-        FingerDetectorTest("../samples/00.jpg");
-        TapDetectorTest("../samples/00.jpg");
+//        HandDetectorTest("../samples/00.jpg");
+//        FingerDetectorTest("../samples/00.jpg");
+//        TapDetectorTest("../samples/00.jpg");
+        Mat im = Imgcodecs.imread("../samples/00.jpg");
+        Imgproc.cvtColor(im, im, Imgproc.COLOR_BGR2YCrCb);
+        List<Point> tap = Tap.getTaps(im);
+        System.out.println(tap);
     }
 
     private static void ImgLoggerTest() {
