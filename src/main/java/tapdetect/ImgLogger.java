@@ -26,7 +26,7 @@ public class ImgLogger {
     public static final int LOG_LEVEL_SILENT = 10;
     public static String baseDir = "";
 
-    private static int logLevel = LOG_LEVEL_INFO;
+    private static int logLevel = LOG_LEVEL_SILENT;
 
     public static void setLevel(String level) {
         switch (level) {
