@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-30 15:10:49
+* @Last Modified time: 2017-05-30 16:12:37
 */
 
 package tapdetect.facade;
@@ -64,6 +64,13 @@ public class Tap {
     }
 
     public static List<List<Point>> getAllForDebug(Mat im) {
+        /*
+            e.g.
+                List<List<Point>> ret = getAllForDebug(im);
+                ret[0]   // contour points of detected hand
+                ret[1]   // detected fingers
+                ret[2]   // detected points where tap happens
+        */
 
         double recover_ratio = 1.0 / Util.resize(im);
 
@@ -81,9 +88,6 @@ public class Tap {
         for (Point pt: hand_contour_pt) { pt.x *= recover_ratio; pt.y *= recover_ratio; }
         for (Point pt: fingers) { pt.x *= recover_ratio; pt.y *= recover_ratio; }
         // no need to shrink points in taps because Point in taps and Point in finger have same reference
-
-        // Log.w("fingers", "" + fingers);
-        // Log.w("taps", "" + taps);
 
         List<List<Point>> ret = new ArrayList<>();
         ret.add(hand_contour_pt);
