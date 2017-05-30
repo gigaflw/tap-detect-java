@@ -2,13 +2,13 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-11 11:00:34
+* @Last Modified time: 2017-05-30 14:56:29
 */
 
 package tapdetect.facade;
 
 import java.util.List;
-import java.util.stream.Collectors;
+// import java.util.stream.Collectors;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -48,7 +48,13 @@ public class Tap {
         List<Point> fingers = fd.getFingers(im, hand);
         List<Point> taps = td.getTapping(im, fingers);
 
-        return taps.stream().map(pt -> new Point((int) (pt.x / shrink_ratio), (int) (pt.y / shrink_ratio)))
-                .collect(Collectors.toList());
+        for (Point pt: taps) {
+            pt.x /= shrink_ratio;
+            pt.y /= shrink_ratio;
+        }
+
+        return taps;
+        // return taps.stream().map(pt -> new Point((int) (pt.x / shrink_ratio), (int) (pt.y / shrink_ratio)))
+        //         .collect(Collectors.toList());
     }
 }

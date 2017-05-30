@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-10 22:26:55
+* @Last Modified time: 2017-05-30 14:54:37
 */
 package tapdetect;
 
@@ -10,8 +10,8 @@ import java.lang.Math;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.stream.Stream;
-import java.util.stream.Collectors;
+// import java.util.stream.Stream;
+// import java.util.stream.Collectors;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -48,11 +48,18 @@ public class Util {
         Mat hierarchy = new Mat();
         Imgproc.findContours(im, contours, hierarchy, 1, Imgproc.RETR_LIST);
 
-        // todo: I cant understand this line
 
-        return contours.stream()
-                .filter(cnt -> Imgproc.contourArea(cnt) > area)
-                .collect(Collectors.toList());
+
+        // FIXME: stream requires Android sdk >= 24
+        // return contours.stream()
+        //         .filter(cnt -> Imgproc.contourArea(cnt) > area)
+        //         .collect(Collectors.toList());
+
+        List<MatOfPoint> ret = new ArrayList<>();
+        for (MatOfPoint cnt: contours) {
+            if (Imgproc.contourArea(cnt) > area) { ret.add(cnt); }
+        }
+        return ret;
     }
 
     public static Mat drawContours(Mat im, List<MatOfPoint> contours, Scalar color) {
