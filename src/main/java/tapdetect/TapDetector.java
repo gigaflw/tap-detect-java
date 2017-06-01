@@ -2,12 +2,10 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-01 11:22:01
+* @Last Modified time: 2017-06-01 14:03:53
 */
 
 package tapdetect;
-
-import android.util.Log;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -41,8 +39,9 @@ public class TapDetector {
 
         public Point getPoint() { return point; }
 
-        public boolean is_falling() { return status == FingerTipStatus.FALLING;  }
-        public boolean is_tapping() { return status == FingerTipStatus.TAPPING;  }
+        public boolean isFalling() { return status == FingerTipStatus.FALLING;  }
+        public boolean isTapping() { return status == FingerTipStatus.TAPPING;  }
+        public boolean isLingering() { return status == FingerTipStatus.LINGER;  }
     }
 
     public List<Point> getTapping(Mat im) {

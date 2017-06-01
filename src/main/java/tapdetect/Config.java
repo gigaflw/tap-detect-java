@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 14:37:27
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-31 22:37:50
+* @Last Modified time: 2017-06-01 19:42:09
 */
 
 package tapdetect;
@@ -22,5 +22,5 @@ public class Config {
     // max distance the finger tip could move between 2 frames
     public static int FINGER_TIP_MOVE_DIST_MAX = 20;
     // max distance the finger tip could move if to judge the point as lingering
-    public static int FINGER_TIP_LINGER_DIST_MAX = 3;
+    public static int FINGER_TIP_LINGER_DIST_MAX = 4;
 }

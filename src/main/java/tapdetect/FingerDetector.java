@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-31 15:48:13
+* @Last Modified time: 2017-06-01 11:36:06
 */
 
 package tapdetect;
@@ -58,7 +58,7 @@ public class FingerDetector {
             Point pt = contour_pt.get(i);
 
             Point ahead = contour_pt.get((i + step) % len);
-            Point behind = contour_pt.get((i < step ? (i - step) % len + len : (i - step) % len);
+            Point behind = contour_pt.get((i < step) ? (i - step) % len + len : (i - step) % len);
 
             int center_x = (int) (ahead.x + behind.x + pt.x) / 3;
             int center_y = (int) (ahead.y + behind.y + pt.y) / 3;
