@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-01 14:03:53
+* @Last Modified time: 2017-06-08 09:32:59
 */
 
 package tapdetect;
@@ -65,8 +65,8 @@ public class TapDetector {
     public List<TapDetectPoint> getTappingAll(Mat im, List<Point> fingers) {
         ArrayList<FingerTipStatus> fingerTipsStatus = new ArrayList<>();
 
-        TapDetectPoint nearest_pt;
-        int nearest_dist;
+        TapDetectPoint nearestPt;
+        int nearestDist;
 
         for (final Point p : fingers) {
 
@@ -74,10 +74,10 @@ public class TapDetector {
             // it is assumed that if the finger tip is detected in both frame
             // then the former must be the nearest to the latter
             if (this.lastFingerTips.isEmpty()) {
-                nearest_pt = null;
-                nearest_dist = Config.FINGER_TIP_MOVE_DIST_MAX + 1;  // use the max value as invalid
+                nearestPt = null;
+                nearestDist = Config.FINGER_TIP_MOVE_DIST_MAX + 1;  // use the max value as invalid
             } else {
-                nearest_pt = Collections.min(this.lastFingerTips,
+                nearestPt = Collections.min(this.lastFingerTips,
                     new Comparator<TapDetectPoint>() {
                         @Override
                         public int compare(TapDetectPoint p1, TapDetectPoint p2) {
@@ -85,23 +85,23 @@ public class TapDetector {
                         }
                     }
                 );
-                nearest_dist = nearest_pt.distanceFrom(p);
+                nearestDist = nearestPt.distanceFrom(p);
             }
 
-            if (nearest_pt == null || nearest_dist > Config.FINGER_TIP_MOVE_DIST_MAX) {
+            if (nearestPt == null || nearestDist > Config.FINGER_TIP_MOVE_DIST_MAX) {
                 // has no relevant point at last frame
                 fingerTipsStatus.add(FingerTipStatus.NOT_CARE);
 
-            } else if (nearest_dist < Config.FINGER_TIP_LINGER_DIST_MAX) {
+            } else if (nearestDist < Config.FINGER_TIP_LINGER_DIST_MAX) {
                 // has a point at last frame with almost a same position
-                if (nearest_pt.status == FingerTipStatus.FALLING && p.y > Config.TAP_THRESHOLD_ROW) {
+                if (nearestPt.status == FingerTipStatus.FALLING && p.y > Config.TAP_THRESHOLD_ROW) {
                     // last frame this is falling, and this frame it lingers
                     // Tap detected !
                     fingerTipsStatus.add(FingerTipStatus.TAPPING);
                 } else {
                     fingerTipsStatus.add(FingerTipStatus.LINGER);
                 }
-            } else if (Math.abs(p.x - nearest_pt.point.x) < p.y - nearest_pt.point.y) {
+            } else if (Math.abs(p.x - nearestPt.point.x) < p.y - nearestPt.point.y) {
                 // has a point at last frame which is above this point and not too far
                 fingerTipsStatus.add(FingerTipStatus.FALLING);
             } else {

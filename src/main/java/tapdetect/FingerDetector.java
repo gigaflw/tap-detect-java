@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:30:34
+* @Last Modified time: 2017-06-08 09:32:26
 */
 
 package tapdetect;
@@ -31,20 +31,20 @@ public class FingerDetector {
             return new ArrayList<>();
         }
 
-        Mat hand_with_contour = Util.drawContours(im, contours, new Scalar(0, 0, 255));
-        ImgLogger.info("11_contour.jpg", hand_with_contour);
+        Mat handWithContour = Util.drawContours(im, contours, new Scalar(0, 0, 255));
+        ImgLogger.info("11_contour.jpg", handWithContour);
 
-        ArrayList<Point> finger_tips = new ArrayList<>();
+        ArrayList<Point> fingerTips = new ArrayList<>();
         for (MatOfPoint cnt : contours) {
-            finger_tips.addAll(this.findFingerTips(cnt.toList(), hand));
+            fingerTips.addAll(this.findFingerTips(cnt.toList(), hand));
         }
 
-        Mat hand_with_finger_tips = Util.drawPoints(hand_with_contour, finger_tips, new Scalar(255, 0, 0));
+        Mat handWithFingerTips = Util.drawPoints(handWithContour, fingerTips, new Scalar(255, 0, 0));
 
-        ImgLogger.info("12_finger_tips.jpg", hand_with_finger_tips);
-        hand_with_finger_tips.assignTo(im);  // so that the caller can have the `im` with contour and fingertip painted
+        ImgLogger.info("12_finger_tips.jpg", handWithFingerTips);
+        handWithFingerTips.assignTo(im);  // so that the caller can have the `im` with contour and fingertip painted
 
-        return finger_tips;
+        return fingerTips;
     }
 
     private List<Point> findFingerTips(List<Point> contour, Mat hand) {
@@ -52,8 +52,8 @@ public class FingerDetector {
 
         List<Point> ret = new ArrayList<>();
         List<Point> cache = new ArrayList<>();
-        double cache_y = 0.0;
-        double last_y = contour.get(0).y;
+        double cacheY = 0.0;
+        double lastY = contour.get(0).y;
 
         Point center = Util.averPoint(contour);
 
@@ -62,15 +62,15 @@ public class FingerDetector {
         for (int i = 2; i < len; ++i) {
             Point pt = contour.get(i);
 
-            if (cache.isEmpty()) { cache_y = pt.y; }
+            if (cache.isEmpty()) { cacheY = pt.y; }
 
-            if (pt.y == cache_y) {
+            if (pt.y == cacheY) {
                 cache.add(pt);
             } else {
                 Point ahead = contour.get((i + step) % len);
                 Point behind = contour.get((i < step) ? (i - step) % len + len : (i - step) % len);
 
-                if (cache_y >= last_y && cache_y >= pt.y                // 1. is local lowest point
+                if (cacheY >= lastY && cacheY >= pt.y                // 1. is local lowest point
                     && cache.size() < Config.FINGER_TIP_WIDTH           // 2. not too long
                     ) {
 
@@ -80,7 +80,7 @@ public class FingerDetector {
                     }
                 }
                 cache.clear();
-                last_y = cache_y;
+                lastY = cacheY;
                 i -= 1;
             }
         }
@@ -89,44 +89,44 @@ public class FingerDetector {
     }
 
     private List<Point> findFingerTipsOld(MatOfPoint contour, Mat hand) {
-        List<Point> contour_pt = contour.toList();
+        List<Point> contourPt = contour.toList();
         int step = Config.FINGER_TIP_STEP;
-        int len = contour_pt.size();
+        int len = contourPt.size();
 
         ArrayList<Integer> finger_tips_ind = new ArrayList<>();
 
         for (int i = 0; i < len; ++i) {
-            Point pt = contour_pt.get(i);
+            Point pt = contourPt.get(i);
 
-            Point ahead = contour_pt.get((i + step) % len);
-            Point behind = contour_pt.get((i < step) ? (i - step) % len + len : (i - step) % len);
+            Point ahead = contourPt.get((i + step) % len);
+            Point behind = contourPt.get((i < step) ? (i - step) % len + len : (i - step) % len);
 
-            int center_x = (int) (ahead.x + behind.x + pt.x) / 3;
-            int center_y = (int) (ahead.y + behind.y + pt.y) / 3;
+            int centerX = (int) (ahead.x + behind.x + pt.x) / 3;
+            int centerY = (int) (ahead.y + behind.y + pt.y) / 3;
 
-            if (center_y > pt.y) {
+            if (centerY > pt.y) {
                 continue;
             }
 
-            if ((int) hand.get(center_y, center_x)[0] == 0) {
+            if ((int) hand.get(centerY, centerX)[0] == 0) {
                 continue;
             }
 
-            double cos = Util.intersectCos(contour_pt.get(i), ahead, behind);
+            double cos = Util.intersectCos(contourPt.get(i), ahead, behind);
 
             if (cos > 0.7) {
                 continue;
             }
 
-            finger_tips_ind.add(i);
+            fingerTipsInd.add(i);
         }
 
-        List<Integer> finger_tips_ind_separate = this.mergeNeighbors(finger_tips_ind, Config.FINGER_TIP_WIDTH);
+        List<Integer> fingerTipsIndSeparate = this.mergeNeighbors(fingerTipsInd, Config.FINGER_TIP_WIDTH);
 
         // FIXME: can't use stream until android sdk 24
-        // return finger_tips_ind_separate.stream().map(contour_pt::get).collect(Collectors.toList());
+        // return fingerTipsIndSeparate.stream().map(contour_pt::get).collect(Collectors.toList());
         List<Point> ret = new ArrayList<>();
-        for (Integer ind: finger_tips_ind_separate) { ret.add(contour_pt.get(ind)); }
+        for (Integer ind: fingerTipsIndSeparate) { ret.add(contourPt.get(ind)); }
         return ret;
     }
 

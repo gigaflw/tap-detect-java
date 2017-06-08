@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:30:53
+* @Last Modified time: 2017-06-08 09:33:16
 */
 package tapdetect;
 
@@ -70,13 +70,13 @@ public class Util {
     }
 
     public static Mat drawContours(Mat im, List<MatOfPoint> contours, Scalar color) {
-        Mat im_cpy = im.clone();
+        Mat imCpy = im.clone();
 
         for (int ind = 0; ind < contours.size(); ++ind) {
-            Imgproc.drawContours(im_cpy, contours, ind, color, 2);
+            Imgproc.drawContours(imCpy, contours, ind, color, 2);
         }
 
-        return im_cpy;
+        return imCpy;
     }
 
     public static Mat fillContours(Size size, List<MatOfPoint> contours, Point[] seeds) {
@@ -95,13 +95,13 @@ public class Util {
     }
 
     public static Mat drawPoints(Mat im, List<Point> points, Scalar color) {
-        Mat im_cpy = im.clone();
+        Mat imCpy = im.clone();
 
         for (Point point : points) {
-            Imgproc.circle(im_cpy, point, 0, color, 3);  // radius=0, thickness=3
+            Imgproc.circle(imCpy, point, 0, color, 3);  // radius=0, thickness=3
         }
 
-        return im_cpy;
+        return imCpy;
     }
 
     public static double intersectCos(Point start, Point end1, Point end2) {
