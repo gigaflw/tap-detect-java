@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:32:26
+* @Last Modified time: 2017-06-08 09:49:55
 */
 
 package tapdetect;
@@ -55,10 +55,6 @@ public class FingerDetector {
         double cacheY = 0.0;
         double lastY = contour.get(0).y;
 
-        Point center = Util.averPoint(contour);
-
-        int step = Config.FINGER_TIP_STEP;
-
         for (int i = 2; i < len; ++i) {
             Point pt = contour.get(i);
 
@@ -67,8 +63,6 @@ public class FingerDetector {
             if (pt.y == cacheY) {
                 cache.add(pt);
             } else {
-                Point ahead = contour.get((i + step) % len);
-                Point behind = contour.get((i < step) ? (i - step) % len + len : (i - step) % len);
 
                 if (cacheY >= lastY && cacheY >= pt.y                // 1. is local lowest point
                     && cache.size() < Config.FINGER_TIP_WIDTH           // 2. not too long
