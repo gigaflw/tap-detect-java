@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-05-30 15:11:45
+* @Last Modified time: 2017-06-08 09:30:53
 */
 package tapdetect;
 
@@ -98,7 +98,7 @@ public class Util {
         Mat im_cpy = im.clone();
 
         for (Point point : points) {
-            Imgproc.circle(im_cpy, point, 1, color, 2);  // radius=2, thickness=3
+            Imgproc.circle(im_cpy, point, 0, color, 3);  // radius=0, thickness=3
         }
 
         return im_cpy;
@@ -109,7 +109,18 @@ public class Util {
         Point v2 = new Point(end2.x - start.x, end2.y - start.y);
 
         double dot = Math.abs(v1.x * v2.x + v1.y * v2.y);
-        double mod = Math.sqrt(v1.x * v1.x + v1.y * v1.y) * Math.sqrt(v2.x * v2.x + v2.y * v2.y);
+        double mod = Math.sqrt((v1.x * v1.x + v1.y * v1.y) * (v2.x * v2.x + v2.y * v2.y));
         return dot / mod;
+    }
+
+    public static Point averPoint(List<Point> points) {
+        double x = 0.0, y = 0.0;
+        for (Point pt: points) {
+            x += pt.x;
+            y += pt.y;
+        }
+        x /= points.size();
+        y /= points.size();
+        return new Point(x, y);
     }
 }

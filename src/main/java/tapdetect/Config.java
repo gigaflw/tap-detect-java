@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 14:37:27
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-01 19:42:09
+* @Last Modified time: 2017-06-08 09:19:34
 */
 
 package tapdetect;
@@ -16,8 +16,8 @@ public class Config {
     public static int IM_HEIGHT = 250;
     public static int TAP_THRESHOLD_ROW = 125;
     public static int HAND_AREA_MIN = 300;
-    public static int FINGER_TIP_STEP = 10;
-    public static int FINGER_TIP_WIDTH = 15;
+    public static int FINGER_TIP_STEP = 10;   // deprecated
+    public static int FINGER_TIP_WIDTH = 20;
 
     // max distance the finger tip could move between 2 frames
     public static int FINGER_TIP_MOVE_DIST_MAX = 20;
