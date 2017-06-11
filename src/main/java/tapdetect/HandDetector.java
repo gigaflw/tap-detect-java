@@ -2,11 +2,12 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:07
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:32:39
+* @Last Modified time: 2017-06-11 13:33:58
 */
 package tapdetect;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -20,6 +21,46 @@ import org.opencv.imgproc.Moments;
 
 public class HandDetector {
     public Mat getHand(Mat im) {
+        return this.colorRange(im.clone(), ColorRange.getRange()); // will color range change im?
+    }
+
+    public Mat getHand(Mat im, Mat fgmask) {
+        /**
+         * @param im: image in YCrCb color space
+         * @param fgmask: foreground mask given by `org.opencv.video.BackgroundSubtractor`,
+         *              denoting whether or not a pixel is moving
+         * this function will not change `im` or `fgmask`
+         */
+        if (ColorRange.getUpdatedCnt() < 70) {
+            List<Point> movingPixels = new ArrayList<>();
+            for (int r = 0; r < fgmask.height(); ++r) {
+                pixelLoop: for (int c = 0; c < fgmask.width(); ++c) {
+                    if (fgmask.get(r, c)[0] == 0) {
+                        continue;
+                    }
+
+                    // found a moving pixel
+                    for (int ch = 0; ch < 3; ++ch) { // channels
+                        if (Math.abs(im.get(r, c)[ch] - ColorRange.getCenter()[ch])
+                                >= Config.FINGER_COLOR_TOLERANCE[ch]) {
+                            // > or >= makes a big difference
+                            continue pixelLoop;
+                        }
+                    }
+                    // found a moving pixel with color near skin color
+                    movingPixels.add(new Point(c, r));
+                }
+            }
+            // TODO: this threshold is to be modified
+            if (movingPixels.size() > 10) {
+                ColorRange.updateRange(im, movingPixels);
+            }
+        }
+        return this.colorRange(im.clone(), ColorRange.getRange()); // will color range change im?
+    }
+
+    @Deprecated
+    public Mat getHandOld(Mat im) {
         assert im.size().height == Config.IM_HEIGHT;
 
 

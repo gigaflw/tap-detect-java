@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 14:37:27
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:19:34
+* @Last Modified time: 2017-06-11 10:47:49
 */
 
 package tapdetect;
@@ -23,4 +23,11 @@ public class Config {
     public static int FINGER_TIP_MOVE_DIST_MAX = 20;
     // max distance the finger tip could move if to judge the point as lingering
     public static int FINGER_TIP_LINGER_DIST_MAX = 4;
+
+    // 0-255, pixels from background substractor with intensity larger than this are regarded as moving
+    public static int FINGER_FG_THRESHOLD = 60;
+
+    public static double[][] FINGER_COLOR_RANGE = {{0, 150, 100}, {255, 160, 130}};
+    public static double[] FINGER_COLOR = {128, 150, 115};
+    public static double[] FINGER_COLOR_TOLERANCE = {255, 5, 10};
 }

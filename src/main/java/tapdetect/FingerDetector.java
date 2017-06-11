@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:49:55
+* @Last Modified time: 2017-06-10 23:19:22
 */
 
 package tapdetect;
@@ -87,7 +87,7 @@ public class FingerDetector {
         int step = Config.FINGER_TIP_STEP;
         int len = contourPt.size();
 
-        ArrayList<Integer> finger_tips_ind = new ArrayList<>();
+        ArrayList<Integer> fingerTipsInd = new ArrayList<>();
 
         for (int i = 0; i < len; ++i) {
             Point pt = contourPt.get(i);
