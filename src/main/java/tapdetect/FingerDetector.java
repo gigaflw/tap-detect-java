@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-14 16:03:01
+* @Last Modified time: 2017-06-14 23:13:12
 */
 
 package tapdetect;
@@ -57,36 +57,45 @@ public class FingerDetector {
         return fingerTips;
     }
 
-
     private List<Point> findFingerTips(List<Point> contour, Mat hand) {
         int len = contour.size();
 
-        Point[] diff_n = new Point[len];
-        Point[] diff_p = new Point[len];
-        double[] tan_n = new double[len];
-        double[] tan_p = new double[len];
-        double[] cosine = new double[len];
-        boolean[] isConvex = new boolean[len];
+        Point[] diff_n = new Point[len];  // vector_this_pt_to_next
+        Point[] diff_p = new Point[len];  // vector_this_pt_to_prev, = -diff_n[i - 1], preserved for convenience
+        double[] dist = new double[len]; // |<vector_this_pt_to_next>|
 
         for (int i = 0; i < len; ++i) {
             int next_i = (i == len - 1) ? 0 : (i + 1);
             int prev_i = (i == 0) ? (len - 1) : (i - 1);
 
-            Point p = contour.get(i);
-            Point next = contour.get(next_i);
-            Point prev = contour.get(prev_i);
+            Point p = contour.get(i), next = contour.get(next_i), prev = contour.get(prev_i);
 
-            isConvex[i] = hand.get((int) p.y - 1, (int) p.x)[0] > 0;
             diff_n[i] = new Point(next.x - p.x, next.y - p.y);
             diff_p[i] = new Point(prev.x - p.x, prev.y - p.y);
+            dist[i] = Math.sqrt(diff_n[i].x * diff_n[i].x + diff_n[i].y * diff_n[i].y);
+        }
 
-            if (!isConvex[i]) {
-                continue;
-            }
+        boolean[] isConvex = new boolean[len];
+        double[] cos = new double[len]; // [0, 1], cos(<vector_this_pt_to_next>)
+        double[] tan = new double[len]; // (-inf, +inf), tan(<vector_this_pt_to_next>)
+        // tan:  | -1
+        //       |
+        // 0 ----+----> row
+        //       |
+        //  -1   |  1
+        //       v col
+        for (int i = 0; i < len; ++i) {
+            int next_i = (i == len - 1) ? 0 : (i + 1);
+            int prev_i = (i == 0) ? (len - 1) : (i - 1);
 
-            tan_n[i] = diff_n[i].y / diff_n[i].x; // maybe infinity
-            tan_p[i] = diff_p[i].y / diff_p[i].x; // maybe infinity
-            cosine[i] = Util.intersectCos(p, prev, next);
+            Point p = contour.get(i), next = contour.get(next_i), prev = contour.get(prev_i);
+
+            isConvex[i] = isConvexPoint(p, prev, next, hand);
+
+            if (isConvex[i]) {
+                tan[i] = diff_n[i].y / diff_n[i].x; // maybe infinity
+                cos[i] = Util.intersectCos(p, prev, next);
+            } // otherwise skip the calculation
         }
 
         List<Point> ret = new ArrayList<>();
@@ -96,32 +105,43 @@ public class FingerDetector {
             }
 
             int next_i = (i == len - 1) ? 0 : (i + 1);
-            Point p = contour.get(i);
-            Point next = contour.get(next_i);
 
-            boolean isLowestLocal = diff_p[i].y <= 0 && diff_n[i].y <= 0;
-            boolean goodAngle = Math.abs(tan_n[i]) > 0.2 && Math.abs(tan_p[i]) > 0.2 && cosine[i] < 0.8;
+            boolean isLowestLocal = diff_p[i].y < 0 && diff_n[i].y < 0;
+            boolean goodAngle = cos[i] < 0.8;
 
             boolean isLowestPair = diff_p[i].y <= 0 && diff_n[next_i].y <= 0;
 
-            boolean isFlat = Math.abs(tan_n[i]) < 0.5;
-            double distRatio =
-                    Math.sqrt(diff_n[i].x * diff_n[i].x + diff_n[i].y * diff_n[i].y)
-                            / (double) Config.FINGER_TIP_WIDTH;
-            boolean goodDist = distRatio < 3 && distRatio > 0.3;
+            boolean isFlat = Math.abs(tan[i]) < 0.5;
+            double distRatio = dist[i] / (double) Config.FINGER_TIP_WIDTH;
+            boolean goodDist = distRatio < 2 && distRatio > 0.5;
             boolean isColumn = isConvex[i] && isConvex[next_i] && isLowestPair && isFlat && goodDist;
             boolean isCorner = isConvex[i] && isLowestLocal && goodAngle;
 
+            Point p = contour.get(i);
             if (isCorner) {
                 ret.add(p.clone());
             }
             if (isColumn) {
-                ret.add(new Point((p.x + next.x) / 2.0, (p.y + next.y) / 2.0));
+                ret.add(new Point(
+                        (p.x + contour.get(next_i).x) / 2.0,
+                        (p.y + contour.get(next_i).y) / 2.0)
+                );
             }
         }
         return ret;
     }
 
+    private boolean isConvexPoint(Point p, Point prev, Point next, Mat hand) {
+        Point center = Util.incenter(p, prev, next);
+        double tan_normal = (center.y - p.y) / (center.x - p.x); // maybe infinity
+
+        // 2.414 = tan(67.5), 0.414 = tan(22.5), one-eighth of 360
+        int dx = (Math.abs(tan_normal) > 2.414) ? 0 : (center.x > p.x ? 1 : -1);
+        int dy = (Math.abs(tan_normal) < 0.414) ? 0 : (center.y > p.y ? 1 : -1);
+
+        return center.y < p.y && hand.get((int) p.y + dy, (int) p.x + dx)[0] > 0;
+        // hard to have 100% precision since of the holes in `hand`
+    }
 
     private List<Point> findFingerTipsOld2(List<Point> contour, Mat hand) {
         int len = contour.size();

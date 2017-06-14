@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-11 10:46:21
+* @Last Modified time: 2017-06-14 17:03:14
 */
 
 package tapdetect.facade;
@@ -151,7 +151,7 @@ public class Tap {
         for (TapDetector.TapDetectPoint p : taps) {
             if (p.isFalling()) {
                 resultCache.get(2).add(p.getPoint());
-            } else if (p.isLinger()) {
+            } else if (p.isLingering()) {
                 resultCache.get(3).add(p.getPoint());
             } else if (p.isTapping()) {
                 resultCache.get(4).add(p.getPoint());

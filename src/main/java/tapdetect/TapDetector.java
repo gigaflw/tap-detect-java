@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-08 09:32:59
+* @Last Modified time: 2017-06-14 23:13:51
 */
 
 package tapdetect;
@@ -12,12 +12,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.opencv.core.Point;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-
-import tapdetect.facade.Tap;
 
 public class TapDetector {
     enum FingerTipStatus {
@@ -34,7 +33,7 @@ public class TapDetector {
         }
 
         int distanceFrom(Point pt) {
-            return Math.abs((int) (point.x - pt.x)) + Math.abs((int) (point.y - pt.y));
+            return Math.abs((int) (point.x - pt.x)) / 2 + Math.abs((int) (point.y - pt.y));
         }
 
         public Point getPoint() { return point; }
@@ -42,6 +41,10 @@ public class TapDetector {
         public boolean isFalling() { return status == FingerTipStatus.FALLING;  }
         public boolean isTapping() { return status == FingerTipStatus.TAPPING;  }
         public boolean isLingering() { return status == FingerTipStatus.LINGER;  }
+
+        public String toString() {
+            return "" + point;
+        }
     }
 
     public List<Point> getTapping(Mat im) {
@@ -94,6 +97,7 @@ public class TapDetector {
 
             } else if (nearestDist < Config.FINGER_TIP_LINGER_DIST_MAX) {
                 // has a point at last frame with almost a same position
+                this.lastFingerTips.remove(nearestPt); // can not be matched by other points
                 if (nearestPt.status == FingerTipStatus.FALLING && p.y > Config.TAP_THRESHOLD_ROW) {
                     // last frame this is falling, and this frame it lingers
                     // Tap detected !
@@ -104,12 +108,13 @@ public class TapDetector {
             } else if (Math.abs(p.x - nearestPt.point.x) < p.y - nearestPt.point.y) {
                 // has a point at last frame which is above this point and not too far
                 fingerTipsStatus.add(FingerTipStatus.FALLING);
+                this.lastFingerTips.remove(nearestPt); // can not be matched by other points
             } else {
+
                 fingerTipsStatus.add(FingerTipStatus.NOT_CARE);
             }
 
         }
-
         // update lastFingerTips
         lastFingerTips.clear();
         for (int i=0; i<fingers.size(); ++i) {
@@ -121,5 +126,5 @@ public class TapDetector {
         return (List<TapDetectPoint>) lastFingerTips.clone();
     }
 
-    private ArrayList<TapDetectPoint> lastFingerTips = new ArrayList<>();  // finger tips of last frame
+    private LinkedList<TapDetectPoint> lastFingerTips = new LinkedList<>();  // finger tips of last frame
 }

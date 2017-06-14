@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 14:37:27
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-11 10:47:49
+* @Last Modified time: 2017-06-14 22:31:15
 */
 
 package tapdetect;
@@ -17,12 +17,15 @@ public class Config {
     public static int TAP_THRESHOLD_ROW = 125;
     public static int HAND_AREA_MIN = 300;
     public static int FINGER_TIP_STEP = 10;   // deprecated
-    public static int FINGER_TIP_WIDTH = 20;
+    public static int FINGER_TIP_WIDTH = 15;
 
     // max distance the finger tip could move between 2 frames
-    public static int FINGER_TIP_MOVE_DIST_MAX = 20;
+    public static int FINGER_TIP_MOVE_DIST_MAX = 25;
     // max distance the finger tip could move if to judge the point as lingering
     public static int FINGER_TIP_LINGER_DIST_MAX = 4;
+
+    // min interval between 2 frame to avoid to slow the moving speed
+    public static int PROCESS_INTERVAL_MS = 100;
 
     // 0-255, pixels from background substractor with intensity larger than this are regarded as moving
     public static int FINGER_FG_THRESHOLD = 60;
