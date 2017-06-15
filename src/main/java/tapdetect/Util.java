@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-14 23:05:19
+* @Last Modified time: 2017-06-15 11:06:30
 */
 package tapdetect;
 
@@ -69,14 +69,20 @@ public class Util {
         return ret;
     }
 
-    public static Mat drawContours(Mat im, List<MatOfPoint> contours, Scalar color) {
-        Mat imCpy = im.clone();
-
+    public static void drawContours(Mat im, List<MatOfPoint> contours, Scalar color) {
         for (int ind = 0; ind < contours.size(); ++ind) {
-            Imgproc.drawContours(imCpy, contours, ind, color, 2);
+            Imgproc.drawContours(im, contours, ind, color, 2);
         }
+    }
 
-        return imCpy;
+    public static void drawContourByPoints(Mat im, List<List<Point>> contours, Scalar color) {
+        for (List<Point> contour: contours) {
+            int len = contour.size();
+            for (int i=0; i < len; ++i) {
+                int next_i = (i + 1) % len;
+                Imgproc.line(im, contour.get(i), contour.get(next_i), color, 2);
+            }
+        }
     }
 
     public static Mat fillContours(Size size, List<MatOfPoint> contours, Point[] seeds) {
@@ -94,14 +100,14 @@ public class Util {
         return im;
     }
 
-    public static Mat drawPoints(Mat im, List<Point> points, Scalar color) {
-        Mat imCpy = im.clone();
-
+    public static void drawPoints(Mat im, List<Point> points, Scalar color) {
         for (Point point : points) {
-            Imgproc.circle(imCpy, point, 0, color, 3);  // radius=0, thickness=3
+            Imgproc.circle(im, point, 0, color, 3);  // radius=0, thickness=3
         }
+    }
 
-        return imCpy;
+    public static void drawPoint(Mat im, Point point, Scalar color) {
+        Imgproc.circle(im, point, 0, color, 3);  // radius=0, thickness=3
     }
 
     public static double intersectCos(Point start, Point end1, Point end2) {

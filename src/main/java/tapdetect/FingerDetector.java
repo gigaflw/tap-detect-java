@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:14:53
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-14 23:13:12
+* @Last Modified time: 2017-06-15 11:17:29
 */
 
 package tapdetect;
@@ -20,14 +20,34 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 public class FingerDetector {
+    private final HandDetector hd = new HandDetector();
+
     public List<Point> getFingers(Mat im) {
-        HandDetector hd = new HandDetector();
-        Mat hand = hd.getHand(im.clone());
-        return getFingers(im, hand);
+        Mat hand = hd.getHand(im);
+        return getFingers(im, hand, null);
     }
 
     public List<Point> getFingers(Mat im, Mat hand) {
-        assert im.size().height == Config.IM_HEIGHT;
+        return getFingers(im, hand, null);
+    }
+
+    public List<Point> getFingers(Mat im, List<MatOfPoint> contourOutput) {
+        Mat hand = hd.getHand(im);
+        return getFingers(im, hand, contourOutput);
+    }
+
+    public List<Point> getFingers(Mat im, Mat hand, List<MatOfPoint> contourOutput) {
+        /**
+         * @param: im: A YCrCb image with same shape as `hand`
+         * @param: hand: A binary image indicating which pixel is part of hand
+         * @param: contourOutput:
+         *      If is not null, contours will be saved for debug
+         * @return: A list of points indicating the detected finger tip points
+         *      This function will not change `in` or `hand`
+         */
+
+        // assert im.size().height == Config.IM_HEIGHT;
+        // assert im.size().height == hand.size().height
 
         List<MatOfPoint> contours = Util.largeContours(hand, Config.HAND_AREA_MIN);
         if (contours.isEmpty()) {
@@ -35,7 +55,9 @@ public class FingerDetector {
         }
 
         ArrayList<Point> fingerTips = new ArrayList<>();
+
         for (int i=0; i<contours.size(); ++i) {
+            // apply polygon approximation
             MatOfPoint cnt = contours.get(i);
 
             double epsilon = 5;
@@ -45,19 +67,23 @@ public class FingerDetector {
             Imgproc.approxPolyDP(cntCvt, approx, epsilon, true);
             approx.convertTo(cnt, CvType.CV_32S);
 
+            // apply polygon approximation
             fingerTips.addAll(this.findFingerTips(approx.toList(), hand));
         }
-        Mat handWithContour = Util.drawContours(im, contours, new Scalar(0, 0, 255));
-        ImgLogger.info("11_contour.jpg", handWithContour);
 
-        Mat handWithFingerTips = Util.drawPoints(handWithContour, fingerTips, new Scalar(255, 0, 0));
-        ImgLogger.info("12_finger_tips.jpg", handWithFingerTips);
-        handWithFingerTips.assignTo(im);  // so that the caller can have the `im` with contour and fingertip painted
+        if (contourOutput != null) {
+            contourOutput.clear();
+            contourOutput.addAll(contours);
+        }
 
         return fingerTips;
     }
 
     private List<Point> findFingerTips(List<Point> contour, Mat hand) {
+        /**
+         * @param: contour: A list of the apex of the contour
+         * @param: hand: A binary image indicating which pixel is part of hand
+         */
         int len = contour.size();
 
         Point[] diff_n = new Point[len];  // vector_this_pt_to_next
@@ -143,6 +169,7 @@ public class FingerDetector {
         // hard to have 100% precision since of the holes in `hand`
     }
 
+    @Deprecated
     private List<Point> findFingerTipsOld2(List<Point> contour, Mat hand) {
         int len = contour.size();
 
@@ -178,6 +205,7 @@ public class FingerDetector {
         return ret;
     }
 
+    @Deprecated
     private List<Point> findFingerTipsOld(MatOfPoint contour, Mat hand) {
         List<Point> contourPt = contour.toList();
         int step = Config.FINGER_TIP_STEP;
@@ -220,6 +248,7 @@ public class FingerDetector {
         return ret;
     }
 
+    @Deprecated
     private List<Integer> mergeNeighbors(List<Integer> inds, int tolerance) {
         List<Integer> ret = new ArrayList<>();
         List<Integer> series = new ArrayList<>();

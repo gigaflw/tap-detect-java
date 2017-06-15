@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-14 23:13:51
+* @Last Modified time: 2017-06-15 10:19:51
 */
 
 package tapdetect;
@@ -19,10 +19,14 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
 public class TapDetector {
+    private final FingerDetector fd = new FingerDetector();
+    private LinkedList<TapDetectPoint> lastFingerTips = new LinkedList<>();  // finger tips of last frame
+
     enum FingerTipStatus {
-        NOT_CARE, FALLING, LINGER, TAPPING
+        NOT_CARE, FALLING, LINGERING, TAPPING
     }
 
+    //TODO: use inheritance instead of composition
     public static class TapDetectPoint {
         Point point;
         FingerTipStatus status;
@@ -40,21 +44,23 @@ public class TapDetector {
 
         public boolean isFalling() { return status == FingerTipStatus.FALLING;  }
         public boolean isTapping() { return status == FingerTipStatus.TAPPING;  }
-        public boolean isLingering() { return status == FingerTipStatus.LINGER;  }
+        public boolean isLingering() { return status == FingerTipStatus.LINGERING;  }
 
-        public String toString() {
-            return "" + point;
-        }
+        public String toString() { return "" + point; }
     }
 
     public List<Point> getTapping(Mat im) {
-        FingerDetector fd = new FingerDetector();
         List<Point> fingers = fd.getFingers(im);
-
         return getTapping(im, fingers);
     }
 
     public List<Point> getTapping(Mat im, List<Point> fingers) {
+        /**
+         * @param: im: A YCrCb image
+         * @param: fingers: A list of points indicating the position of finger tips
+         * @return:
+         *      A list of points detected as being tapping
+         */
         List<TapDetectPoint> all = getTappingAll(im, fingers);
         List<Point> result = new ArrayList<>();
         for (TapDetectPoint p: all) {
@@ -66,6 +72,12 @@ public class TapDetector {
     }
 
     public List<TapDetectPoint> getTappingAll(Mat im, List<Point> fingers) {
+        /**
+         * @param: im: A YCrCb image
+         * @param: fingers: A list of points indicating the position of finger tips
+         * @return:
+         *  A list of `TapDetectPoint` whose `status` indicating the status of each finger tip point 
+         */
         ArrayList<FingerTipStatus> fingerTipsStatus = new ArrayList<>();
 
         TapDetectPoint nearestPt;
@@ -103,7 +115,7 @@ public class TapDetector {
                     // Tap detected !
                     fingerTipsStatus.add(FingerTipStatus.TAPPING);
                 } else {
-                    fingerTipsStatus.add(FingerTipStatus.LINGER);
+                    fingerTipsStatus.add(FingerTipStatus.LINGERING);
                 }
             } else if (Math.abs(p.x - nearestPt.point.x) < p.y - nearestPt.point.y) {
                 // has a point at last frame which is above this point and not too far
@@ -125,6 +137,4 @@ public class TapDetector {
         // ImgLogger.info("20_tapping.jpg", tapping_im);
         return (List<TapDetectPoint>) lastFingerTips.clone();
     }
-
-    private LinkedList<TapDetectPoint> lastFingerTips = new LinkedList<>();  // finger tips of last frame
 }
