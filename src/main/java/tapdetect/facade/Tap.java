@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-15 10:58:43
+* @Last Modified time: 2017-06-16 10:36:26
 */
 
 package tapdetect.facade;
@@ -23,6 +23,7 @@ import tapdetect.HandDetector;
 import tapdetect.ImgLogger;
 import tapdetect.TapDetector;
 import tapdetect.Util;
+import tapdetect.ColorRange;
 
 public class Tap {
     static {
@@ -47,6 +48,10 @@ public class Tap {
 
     public static boolean readyForNextFrame() {
         return System.currentTimeMillis() - lastProcess > Config.PROCESS_INTERVAL_MS;
+    }
+    
+    public static void reset() {
+        ColorRange.reset();
     }
 
 
@@ -109,8 +114,8 @@ public class Tap {
 
         if (!checkTime()) { return resultCache; }
     
-
         double recover_ratio = 1.0 / Util.resize(im);
+
         Mat fgmask = fgd.getForeground(im);
 
         Imgproc.cvtColor(im, im, Imgproc.COLOR_BGR2YCrCb);

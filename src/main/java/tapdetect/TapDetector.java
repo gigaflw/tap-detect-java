@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-15 10:19:51
+* @Last Modified time: 2017-06-15 12:29:00
 */
 
 package tapdetect;
@@ -128,13 +128,14 @@ public class TapDetector {
 
         }
         // update lastFingerTips
+        List<TapDetectPoint> result = new ArrayList<>();
         lastFingerTips.clear();
         for (int i=0; i<fingers.size(); ++i) {
             lastFingerTips.add(new TapDetectPoint(fingers.get(i), fingerTipsStatus.get(i)));
+            result.add(new TapDetectPoint(fingers.get(i), fingerTipsStatus.get(i)));
         }
 
         // Mat tapping_im = Util.drawPoints(im, tapping, new Scalar(0, 255, 0));
-        // ImgLogger.info("20_tapping.jpg", tapping_im);
-        return (List<TapDetectPoint>) lastFingerTips.clone();
+        return result;
     }
 }

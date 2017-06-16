@@ -2,13 +2,12 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-15 11:06:30
+* @Last Modified time: 2017-06-15 12:21:37
 */
 package tapdetect;
 
 import java.lang.Math;
 import java.util.List;
-import java.util.Arrays;
 import java.util.ArrayList;
 // import java.util.stream.Stream;
 // import java.util.stream.Collectors;
@@ -20,8 +19,6 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.CvType;
 import org.opencv.imgproc.Imgproc;
-
-import tapdetect.Config;
 
 public class Util {
     public static final Scalar SCALAR_BLACK = new Scalar(0, 0, 0);
