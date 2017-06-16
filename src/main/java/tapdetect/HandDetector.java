@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:07
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-16 10:45:53
+* @Last Modified time: 2017-06-16 16:31:04
 */
 package tapdetect;
 
@@ -31,17 +31,6 @@ public class HandDetector {
 
 
     public Mat getHand(Mat im, Mat fgmask) {
-        int w = (int) im.size().width - 21;
-        int h = (int) im.size().height - 21;
-
-        List<Point> movingPixels = new ArrayList<>();
-        for (int j = -20; j <= 20; ++j) {
-            for (int i = -20; i <= 20; ++i) {
-                movingPixels.add(new Point(w + j, h + i));
-            }
-        }
-
-        ColorRange.updateRange(im, movingPixels);
         return this.colorRange(im, ColorRange.getRange());
     }
 

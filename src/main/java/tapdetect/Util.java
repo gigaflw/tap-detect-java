@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-15 12:21:37
+* @Last Modified time: 2017-06-16 15:18:39
 */
 package tapdetect;
 
@@ -80,6 +80,17 @@ public class Util {
                 Imgproc.line(im, contour.get(i), contour.get(next_i), color, 2);
             }
         }
+    }
+
+    public static void fillContour(Mat im, List<Point> contour, Point seed) {
+        Mat mask = Mat.zeros(new Size(im.width()+ 2, im.height() + 2), CvType.CV_8UC1);
+
+        int len = contour.size();
+        for (int i=0; i < len; ++i) {
+            int next_i = (i + 1) % len;
+            Imgproc.line(im, contour.get(i), contour.get(next_i), Util.SCALAR_WHITE, 2);
+        }
+        Imgproc.floodFill(im, mask, seed, Util.SCALAR_WHITE);
     }
 
     public static Mat fillContours(Size size, List<MatOfPoint> contours, Point[] seeds) {

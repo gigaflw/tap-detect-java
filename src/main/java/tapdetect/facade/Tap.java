@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-16 10:36:26
+* @Last Modified time: 2017-06-16 16:29:19
 */
 
 package tapdetect.facade;
@@ -16,14 +16,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractor;
 import org.opencv.video.Video;
 
-import tapdetect.Config;
-import tapdetect.FingerDetector;
-import tapdetect.ForegroundDetector;
-import tapdetect.HandDetector;
-import tapdetect.ImgLogger;
-import tapdetect.TapDetector;
-import tapdetect.Util;
-import tapdetect.ColorRange;
+import tapdetect.*;
 
 public class Tap {
     static {
@@ -74,6 +67,16 @@ public class Tap {
 
 
     public static List<Point> getTaps(Mat im) {
+        /**
+         * @Waring! not implemented completely
+         *
+         * Searching tapping points from `im`
+         * This is the most used func in this facade
+         * @param im: one frame from a video
+         * @return : A list of `Point` indicating the points which
+         *  (1) is regarded as the finger tip
+         *  (2) is regarded as being tapping
+         */
         // TODO: add throttle
 
         // resize to the standard size
@@ -119,6 +122,12 @@ public class Tap {
         Mat fgmask = fgd.getForeground(im);
 
         Imgproc.cvtColor(im, im, Imgproc.COLOR_BGR2YCrCb);
+
+        if (!sampleCompleted()) {
+            sample(im);
+            // return resultCache;
+        }
+
         Mat hand = hd.getHand(im, fgmask);
 
         List<MatOfPoint> contour = new ArrayList<>();
@@ -170,5 +179,14 @@ public class Tap {
             lastProcess = t;
             return true;
         }
+    }
+
+    public static boolean sample(Mat mat) {
+        if (!Sampler.isInited()) {
+            Sampler.initSampleMask(mat.height(), mat.width());
+        }
+
+        Sampler.sample(mat);
+        return Sampler.sampleCompleted();
     }
 }
