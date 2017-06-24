@@ -30,7 +30,7 @@ At least 5 images are needed for sampling to complete.
 Thresholds can be modified in `Config.java`
 
 ![sampling demo](https://github.com/gigaflw/tap-detect-java/raw/master/snapshots/sample.jpg)
-(snapshot from ![PaperMelody App](https://github.com/hgs1217/Paper-Melody), an android app using this algorithm)
+(snapshot from [PaperMelody App](https://github.com/hgs1217/Paper-Melody), an android app using this algorithm)
 
 > detection
 
@@ -64,4 +64,4 @@ After sampling, now we can carry out detection
     }
 
 ![detection demo](https://github.com/gigaflw/tap-detect-java/raw/master/snapshots/detection.jpg)
-(snapshot from ![PaperMelody App](https://github.com/hgs1217/Paper-Melody), an android app using this algorithm)
+(snapshot from [PaperMelody App](https://github.com/hgs1217/Paper-Melody), an android app using this algorithm)
