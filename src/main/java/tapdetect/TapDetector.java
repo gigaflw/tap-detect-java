@@ -2,59 +2,60 @@
 * @Author: zhouben
 * @Date:   2017-05-10 22:47:18
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-15 12:29:00
+* @Last Modified time: 2017-06-23 23:18:13
 */
 
 package tapdetect;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 import org.opencv.core.Point;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 
 public class TapDetector {
-    private final FingerDetector fd = new FingerDetector();
-    private LinkedList<TapDetectPoint> lastFingerTips = new LinkedList<>();  // finger tips of last frame
-
     enum FingerTipStatus {
-        NOT_CARE, FALLING, LINGERING, TAPPING
+        NOT_CARE, FALLING, LINGER, TAPPING, PRESSING,
     }
 
-    //TODO: use inheritance instead of composition
-    public static class TapDetectPoint {
-        Point point;
+    public static class TapDetectPoint extends Point {
         FingerTipStatus status;
 
         TapDetectPoint(Point point, FingerTipStatus status) {
-            this.point = point;
+            super(point.x, point.y);
             this.status = status;
         }
 
-        int distanceFrom(Point pt) {
-            return Math.abs((int) (point.x - pt.x)) / 2 + Math.abs((int) (point.y - pt.y));
+        TapDetectPoint(TapDetectPoint other) {
+            super(other.x, other.y);
+            status = other.status;
         }
 
-        public Point getPoint() { return point; }
+        int distanceFrom(Point pt) {
+            return Math.abs((int) (x - pt.x)) / 2 + Math.abs((int) (y - pt.y));
+        }
 
-        public boolean isFalling() { return status == FingerTipStatus.FALLING;  }
-        public boolean isTapping() { return status == FingerTipStatus.TAPPING;  }
-        public boolean isLingering() { return status == FingerTipStatus.LINGERING;  }
+        public boolean isFalling() {
+            return status == FingerTipStatus.FALLING;
+        }
 
-        public String toString() { return "" + point; }
+        public boolean isLingering() {
+            return status == FingerTipStatus.LINGER;
+        }
+
+        public boolean isTapping() {
+            return status == FingerTipStatus.TAPPING;
+        }
+
+        public boolean isPressing() {
+            return status == FingerTipStatus.PRESSING;
+        }
     }
 
-    public List<Point> getTapping(Mat im) {
-        List<Point> fingers = fd.getFingers(im);
-        return getTapping(im, fingers);
-    }
-
-    public List<Point> getTapping(Mat im, List<Point> fingers) {
+    public static List<Point> getTapping(Mat im, List<Point> fingers) {
         /**
          * @param: im: A YCrCb image
          * @param: fingers: A list of points indicating the position of finger tips
@@ -63,79 +64,109 @@ public class TapDetector {
          */
         List<TapDetectPoint> all = getTappingAll(im, fingers);
         List<Point> result = new ArrayList<>();
-        for (TapDetectPoint p: all) {
-            if (p.status == FingerTipStatus.TAPPING) {
-                result.add(p.point);
+        for (TapDetectPoint p : all) {
+            if (p.isTapping()) {
+                result.add(p);
             }
         }
         return result;
     }
 
-    public List<TapDetectPoint> getTappingAll(Mat im, List<Point> fingers) {
+    public static List<Point> getPressing(Mat im, List<Point> fingers) {
         /**
          * @param: im: A YCrCb image
          * @param: fingers: A list of points indicating the position of finger tips
          * @return:
-         *  A list of `TapDetectPoint` whose `status` indicating the status of each finger tip point 
+         *      A list of points detected as being pressing
          */
-        ArrayList<FingerTipStatus> fingerTipsStatus = new ArrayList<>();
+        List<TapDetectPoint> all = getTappingAll(im, fingers);
+        List<Point> result = new ArrayList<>();
+        for (TapDetectPoint p : all) {
+            if (p.isPressing()) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    public static List<TapDetectPoint> getTappingAll(Mat im, List<Point> fingers) {
+        /**
+         * @param: im: A YCrCb image
+         * @param: fingers: A list of points indicating the position of finger tips
+         * @return:
+         *  A list of `TapDetectPoint` whose `status` indicating the status of each finger tip point
+         */
+        List<TapDetectPoint> nextFingers = new ArrayList<>();
 
         TapDetectPoint nearestPt;
-        int nearestDist;
+        int nearest_dist;
 
         for (final Point p : fingers) {
 
             // find nearest point among all points from last frame
             // it is assumed that if the finger tip is detected in both frame
             // then the former must be the nearest to the latter
-            if (this.lastFingerTips.isEmpty()) {
+            if (lastFingerTips.isEmpty()) {
                 nearestPt = null;
-                nearestDist = Config.FINGER_TIP_MOVE_DIST_MAX + 1;  // use the max value as invalid
+                nearest_dist = Config.FINGER_TIP_MOVE_DIST_MAX + 1;  // use the max value as invalid
             } else {
-                nearestPt = Collections.min(this.lastFingerTips,
-                    new Comparator<TapDetectPoint>() {
-                        @Override
-                        public int compare(TapDetectPoint p1, TapDetectPoint p2) {
-                            return Integer.compare(p1.distanceFrom(p), p2.distanceFrom(p));
+                nearestPt = Collections.min(lastFingerTips,
+//                    (TapDetectPoint p1, TapDetectPoint p2) -> Integer.compare(p1.distanceFrom(p), p2.distanceFrom(p))
+                        new Comparator<TapDetectPoint>() {
+                            @Override
+                            public int compare(TapDetectPoint p1, TapDetectPoint p2) {
+                                return Integer.compare(p1.distanceFrom(p), p2.distanceFrom(p));
+                            }
                         }
-                    }
                 );
-                nearestDist = nearestPt.distanceFrom(p);
+                nearest_dist = nearestPt.distanceFrom(p);
             }
 
-            if (nearestPt == null || nearestDist > Config.FINGER_TIP_MOVE_DIST_MAX) {
+            if (nearestPt == null || nearest_dist > Config.FINGER_TIP_MOVE_DIST_MAX) {
                 // has no relevant point at last frame
-                fingerTipsStatus.add(FingerTipStatus.NOT_CARE);
+                nextFingers.add(new TapDetectPoint(p, FingerTipStatus.NOT_CARE));
 
-            } else if (nearestDist < Config.FINGER_TIP_LINGER_DIST_MAX) {
+            } else if (nearest_dist < Config.FINGER_TIP_LINGER_DIST_MAX) {
                 // has a point at last frame with almost a same position
-                this.lastFingerTips.remove(nearestPt); // can not be matched by other points
-                if (nearestPt.status == FingerTipStatus.FALLING && p.y > Config.TAP_THRESHOLD_ROW) {
+                lastFingerTips.remove(nearestPt); // can not be matched by other points
+                if (nearestPt.isFalling()) {
                     // last frame this is falling, and this frame it lingers
                     // Tap detected !
-                    fingerTipsStatus.add(FingerTipStatus.TAPPING);
+                    noNeighborAdd(nextFingers, new TapDetectPoint(p, FingerTipStatus.TAPPING));
+                    // nextFingers.add(new TapDetectPoint(p, FingerTipStatus.TAPPING));
+                } else if (nearestPt.isPressing() || nearestPt.isTapping()) {
+                    nextFingers.add(new TapDetectPoint(p, FingerTipStatus.PRESSING));
                 } else {
-                    fingerTipsStatus.add(FingerTipStatus.LINGERING);
+                    nextFingers.add(new TapDetectPoint(p, FingerTipStatus.LINGER));
                 }
-            } else if (Math.abs(p.x - nearestPt.point.x) < p.y - nearestPt.point.y) {
+            } else if (Math.abs(p.x - nearestPt.x) < p.y - nearestPt.y) {
                 // has a point at last frame which is above this point and not too far
-                fingerTipsStatus.add(FingerTipStatus.FALLING);
-                this.lastFingerTips.remove(nearestPt); // can not be matched by other points
+                nextFingers.add(new TapDetectPoint(p, FingerTipStatus.FALLING));
+                lastFingerTips.remove(nearestPt); // can not be matched by other points
             } else {
-
-                fingerTipsStatus.add(FingerTipStatus.NOT_CARE);
+                nextFingers.add(new TapDetectPoint(p, FingerTipStatus.NOT_CARE));
             }
 
         }
-        // update lastFingerTips
-        List<TapDetectPoint> result = new ArrayList<>();
-        lastFingerTips.clear();
-        for (int i=0; i<fingers.size(); ++i) {
-            lastFingerTips.add(new TapDetectPoint(fingers.get(i), fingerTipsStatus.get(i)));
-            result.add(new TapDetectPoint(fingers.get(i), fingerTipsStatus.get(i)));
-        }
 
-        // Mat tapping_im = Util.drawPoints(im, tapping, new Scalar(0, 255, 0));
-        return result;
+        // update lastFingerTips
+        lastFingerTips.clear();
+        for (TapDetectPoint p : nextFingers) {
+            lastFingerTips.add(new TapDetectPoint(p));
+        }
+        return nextFingers;
     }
+
+    private static void noNeighborAdd(List<TapDetectPoint> points, TapDetectPoint toAdd) {
+        for (TapDetectPoint p : points) {
+            if (p.isTapping() && p.distanceFrom(toAdd) < 7) {
+                p.x = (p.x + toAdd.x) * 0.5;
+                p.y = (p.y + toAdd.y) * 0.5;
+                return;
+            }
+        }
+        points.add(toAdd);
+    }
+
+    private static LinkedList<TapDetectPoint> lastFingerTips = new LinkedList<>();  // finger tips of last frame
 }

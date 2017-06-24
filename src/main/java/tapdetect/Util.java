@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-16 15:18:39
+* @Last Modified time: 2017-06-23 22:49:15
 */
 package tapdetect;
 
@@ -52,19 +52,22 @@ public class Util {
         //         .collect(Collectors.toList());
 
         List<MatOfPoint> ret = new ArrayList<>();
-        for (MatOfPoint cnt: contours) {
-            if (Imgproc.contourArea(cnt) > area) { ret.add(cnt); }
+        for (MatOfPoint cnt : contours) {
+            if (Imgproc.contourArea(cnt) > area) {
+                ret.add(cnt);
+            }
         }
         return ret;
     }
 
     public static List<Point> contoursToPoints(List<MatOfPoint> contours) {
         List<Point> ret = new ArrayList<>();
-        for (MatOfPoint cnt: contours) {
+        for (MatOfPoint cnt : contours) {
             ret.addAll(cnt.toList());
         }
         return ret;
     }
+
 
     public static void drawContours(Mat im, List<MatOfPoint> contours, Scalar color) {
         for (int ind = 0; ind < contours.size(); ++ind) {
@@ -73,9 +76,9 @@ public class Util {
     }
 
     public static void drawContourByPoints(Mat im, List<List<Point>> contours, Scalar color) {
-        for (List<Point> contour: contours) {
+        for (List<Point> contour : contours) {
             int len = contour.size();
-            for (int i=0; i < len; ++i) {
+            for (int i = 0; i < len; ++i) {
                 int next_i = (i + 1) % len;
                 Imgproc.line(im, contour.get(i), contour.get(next_i), color, 2);
             }
@@ -83,10 +86,10 @@ public class Util {
     }
 
     public static void fillContour(Mat im, List<Point> contour, Point seed) {
-        Mat mask = Mat.zeros(new Size(im.width()+ 2, im.height() + 2), CvType.CV_8UC1);
+        Mat mask = Mat.zeros(new Size(im.width() + 2, im.height() + 2), CvType.CV_8UC1);
 
         int len = contour.size();
-        for (int i=0; i < len; ++i) {
+        for (int i = 0; i < len; ++i) {
             int next_i = (i + 1) % len;
             Imgproc.line(im, contour.get(i), contour.get(next_i), Util.SCALAR_WHITE, 2);
         }
@@ -127,6 +130,7 @@ public class Util {
         return dot / mod;
     }
 
+
     public static double pointDist(Point p1, Point p2) {
         return Math.sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
     }
@@ -146,7 +150,7 @@ public class Util {
 
     public static Point averPoint(List<Point> points) {
         double x = 0.0, y = 0.0;
-        for (Point pt: points) {
+        for (Point pt : points) {
             x += pt.x;
             y += pt.y;
         }
@@ -154,6 +158,4 @@ public class Util {
         y /= points.size();
         return new Point(x, y);
     }
-
-
 }

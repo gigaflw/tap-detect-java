@@ -1,18 +1,20 @@
 # IDE
-.idea/
+.idea
 
 # java
 *.class
-build/
-record/
-javadoc/    # ignore this temporarily
-Main.java
+build
 
 # Gradle
-.gradle/
+.gradle
 
 # MacOS
 .DS_Store
 
 # Android setting files
 *.iml
+
+# algorithm develop
+samples
+record
+Main.java

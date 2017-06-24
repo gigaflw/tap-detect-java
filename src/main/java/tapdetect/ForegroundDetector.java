@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:07
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-11 10:46:07
+* @Last Modified time: 2017-06-16 22:22:45
 */
 package tapdetect;
 
@@ -12,6 +12,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.video.BackgroundSubtractor;
 import org.opencv.video.Video;
 
+@Deprecated
 public class ForegroundDetector {
 
     private final BackgroundSubtractor bs = Video.createBackgroundSubtractorMOG2();

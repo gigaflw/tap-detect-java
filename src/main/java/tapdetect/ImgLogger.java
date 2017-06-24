@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:16:34
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-15 12:29:31
+* @Last Modified time: 2017-06-23 23:02:28
 */
 package tapdetect;
 
@@ -13,6 +13,8 @@ import org.opencv.core.Mat;
 
 /**
  * Logger to record the immediate/final result of image processing
+ * Only for debug use on PC
+ * should be called `silent` on mobile phone
  * <br> Usage:
  * <code>
  * <br>  ImgLogger.setLevel(ImgLogger.LOG_LEVEL_DEBUG);   // save all image with importance above 'debug' level

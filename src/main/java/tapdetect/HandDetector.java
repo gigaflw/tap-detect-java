@@ -2,39 +2,21 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:07
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-16 16:31:04
+* @Last Modified time: 2017-06-23 23:09:51
 */
 package tapdetect;
 
-import java.util.List;
-import java.util.ArrayList;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
-import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.CvType;
 import org.opencv.imgproc.Imgproc;
-import org.opencv.imgproc.Moments;
+
 
 public class HandDetector {
-    public Mat getHand(Mat im) {
-         /**
-         * @param im: image in YCrCb color space
-         * this function will not change `im`
-         * @return: a binary image will white pixels are in range
-         */
-        return this.colorRange(im, ColorRange.getRange());
-    }
 
-
-    public Mat getHand(Mat im, Mat fgmask) {
-        return this.colorRange(im, ColorRange.getRange());
-    }
-
-    public Mat getHandOld(Mat im, Mat fgmask) {
+    public static Mat getHand(Mat im) {
         /**
          * @param im: image in YCrCb color space
          * @param fgmask: foreground mask given by `org.opencv.video.BackgroundSubtractor`,
@@ -43,67 +25,11 @@ public class HandDetector {
          * this function will not change `im` or `fgmask`
          * @return: a binary image will white pixels are in range
          */
-        if (ColorRange.getUpdatedCnt() < 70) {
-            List<Point> movingPixels = new ArrayList<>();
-            for (int r = 0; r < fgmask.height(); ++r) {
-                pixelLoop: 
-                for (int c = 0; c < fgmask.width(); ++c) {
-                    if (fgmask.get(r, c)[0] == 0) {
-                        continue;
-                    }
-
-                    // found a moving pixel
-                    for (int ch = 0; ch < 3; ++ch) { // channels
-                        if (Math.abs(im.get(r, c)[ch] - ColorRange.getCenter()[ch])
-                                >= Config.FINGER_COLOR_TOLERANCE[ch]) {
-                            // > or >= makes a big difference
-                            continue pixelLoop;
-                        }
-                    }
-                    // found a moving pixel with color near skin color
-                    movingPixels.add(new Point(c, r));
-                }
-            }
-            // TODO: this threshold is to be modified
-            if (movingPixels.size() > 10) {
-                ColorRange.updateRange(im, movingPixels);
-            }
-        }
-        return this.colorRange(im, ColorRange.getRange());
+        return colorRange(im, ColorRange.getRange());
     }
 
-    @Deprecated
-    public Mat getHandOld(Mat im) {
-        assert im.size().height == Config.IM_HEIGHT;
 
-
-        Mat handSm = this.colorRange(im.clone(), Config.FINGER_COLOR_RANGE_SM);
-        Mat handLg = this.colorRange(im.clone(), Config.FINGER_COLOR_RANGE_LG);
-
-        ImgLogger.debug("04_small_range.jpg", handSm);
-        ImgLogger.debug("05_large_range.jpg", handLg);
-
-        List<MatOfPoint> contoursSm = Util.largeContours(handSm, Config.HAND_AREA_MIN);
-
-        Point[] seeds = new Point[contoursSm.size()];
-
-        for (int i = 0; i < contoursSm.size(); ++i) {
-            Moments m = Imgproc.moments(contoursSm.get(i));
-            int col = (int) (m.get_m10() / m.get_m00());
-            int row = (int) (m.get_m01() / m.get_m00());
-            seeds[i] = new Point(col, row);
-        }
-        // [(col1, row1), ...] center of each contour
-
-        List<MatOfPoint> contoursLg = Util.largeContours(handLg, Config.HAND_AREA_MIN);
-
-        Mat hand = Util.fillContours(handLg.size(), contoursLg, seeds);
-
-        ImgLogger.info("06_hand.jpg", hand);
-        return hand;
-    }
-
-    private Mat colorRange(Mat im, Scalar[] colorRange) {
+    private static Mat colorRange(Mat im, Scalar[] colorRange) {
         /**
          *  Get coarse area of hand according to colorRange
          *  @param: colorRange:
@@ -112,7 +38,7 @@ public class HandDetector {
          *        [upper_bound_channel_0, upper_bound_channel_1, upper_bound_channel_2, ...]
          *      ]
          *  will not change `im` or `colorRange`
-         *  
+         *
          *  @return: a binary image will white pixels are in range
          */
 
@@ -123,8 +49,9 @@ public class HandDetector {
 
         // 2. Ignore face
         // Ignore first 1/3 in height to ignore face
-        // We assume fingers only appear at between 1/3 and bottom
-        mask.submat(new Range(0, (int) mask.size().height / 3), new Range(0, (int) mask.size().width)).setTo(Util.SCALAR_BLACK);
+        // We assume fingers only appear at between 1/4 and bottom
+        // FIXME: may be useless?
+        mask.submat(new Range(0, (int) mask.size().height / 4), new Range(0, (int) mask.size().width)).setTo(Util.SCALAR_BLACK);
 
         // 3. remove noise
         // Morphology Open
