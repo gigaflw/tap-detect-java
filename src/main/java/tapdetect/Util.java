@@ -2,7 +2,7 @@
 * @Author: zhouben
 * @Date:   2017-05-10 09:15:23
 * @Last Modified by:   zhouben
-* @Last Modified time: 2017-06-23 22:49:15
+* @Last Modified time: 2017-06-24 10:47:46
 */
 package tapdetect;
 
@@ -75,13 +75,17 @@ public class Util {
         }
     }
 
-    public static void drawContourByPoints(Mat im, List<List<Point>> contours, Scalar color) {
+    public static void drawContourByPoints(Mat im, List<Point> contour, Scalar color) {
+        int len = contour.size();
+        for (int i = 0; i < len; ++i) {
+            int next_i = (i + 1) % len;
+            Imgproc.line(im, contour.get(i), contour.get(next_i), color, 2);
+        }
+    }
+
+    public static void drawContoursByPoints(Mat im, List<List<Point>> contours, Scalar color) {
         for (List<Point> contour : contours) {
-            int len = contour.size();
-            for (int i = 0; i < len; ++i) {
-                int next_i = (i + 1) % len;
-                Imgproc.line(im, contour.get(i), contour.get(next_i), color, 2);
-            }
+            drawContourByPoints(im, contour, color);
         }
     }
 
